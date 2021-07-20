@@ -1,5 +1,6 @@
 import XCTest
 import RxSwift
+import RxCocoa
 import RxTest
 import RxExpect
 
@@ -33,7 +34,7 @@ final class RxExpectTests: XCTestCase {
       ])
     }
 
-    let variable = Variable<Int>(0)
+    let variable = BehaviorRelay<Int>(value: 0)
     test.input(variable, [
       .next(300, 1),
       .next(400, 2),
@@ -68,8 +69,12 @@ final class RxExpectTests: XCTestCase {
 
   func testAssertMergeOnMainScheduler() {
     let test = RxExpect()
-    let subjects: [PublishSubject<String>] = [.init(), .init(), .init()]
-    let observable = Observable<String>.merge(subjects).observeOn(MainScheduler.instance)
+    let subjects: [PublishSubject<String>] = [
+        .init(), .init(), .init()
+    ]
+    let observable = Observable<String>
+        .merge(subjects)
+        .observe(on: MainScheduler.instance)
     test.input(subjects[0], [
       .next(500, "A"),
     ])
